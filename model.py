@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
-
 class EncoderCNN(nn.Module):
     def __init__(self, embed_size):
         super(EncoderCNN, self).__init__()
@@ -23,10 +22,19 @@ class EncoderCNN(nn.Module):
 
 class DecoderRNN(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size, num_layers=1):
-        pass
+        super(DecoderRNN, self).__init__()
+        self.embed = nn.Embedding(vocab_size, embed_size)
+        self.lstm = nn.LSTM(embed_size, hidden_size, num_layers)
+        self.linear = nn.Linear(hidden_size, vocab_size)
     
     def forward(self, features, captions):
-        pass
+        embeddings = self.embed(captions)
+        inputs = torch.cat((features.unsqueeze(1), embeddings), 1)
+        lstm = self.lstm(inputs)
+        outputs = self.linear(lstm[0])
+        
+        return outputs
+        
 
     def sample(self, inputs, states=None, max_len=20):
         " accepts pre-processed image tensor (inputs) and returns predicted sentence (list of tensor ids of length max_len) "
