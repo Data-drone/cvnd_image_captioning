@@ -28,7 +28,7 @@ class DecoderRNN(nn.Module):
         self.linear = nn.Linear(hidden_size, vocab_size)
     
     def forward(self, features, captions):
-        embeddings = self.embed(captions)
+        embeddings = self.embed(captions[:,:-1])
         inputs = torch.cat((features.unsqueeze(1), embeddings), 1)
         lstm = self.lstm(inputs)
         outputs = self.linear(lstm[0])
