@@ -26,7 +26,7 @@ class DecoderRNN(nn.Module):
         """Set the hyper-parameters and build the layers."""
         super(DecoderRNN, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.LSTM(embed_size, hidden_size, num_layers)
+        self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first = True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         
     def forward(self, features, captions):
@@ -42,10 +42,10 @@ class DecoderRNN(nn.Module):
         sampled_ids = []
         inputs = features
         for i in range(max_len):
-            hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
-            outputs = self.linear(hiddens)            # outputs:  (batch_size, vocab_size)
-            _, predicted = outputs.max(2)                        # predicted: (batch_size)
+            hiddens, states = self.lstm(inputs, states)          
+            outputs = self.linear(hiddens)            
+            _, predicted = outputs.max(2)                        
             sampled_ids.append(predicted.item())
-            inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
+            inputs = self.embed(predicted)                       
             
         return sampled_ids
